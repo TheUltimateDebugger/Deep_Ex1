@@ -4,6 +4,8 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
+from dataset import PeptideDataset
+
 
 class CustomDataset(Dataset):
     def __init__(self, X, y):
@@ -16,13 +18,11 @@ class CustomDataset(Dataset):
     def __getitem__(self, idx):
         return self.X[idx], self.y[idx]
 
-# Dummy dataset
-X_train = torch.randint(0, 2, (100, 180)).float()
-# Labels: integers between 0 and 6
-y_train = torch.randint(0, 7, (100,))
+
+
 
 # Create Dataset
-dataset = CustomDataset(X_train, y_train)
+dataset = PeptideDataset("C:\\Users\\TLP-305\\PycharmProjects\\Deep_Ex1\\ex1 data\\ex1 data")
 
 # Create DataLoader
 loader = DataLoader(dataset, batch_size=10, shuffle=True)
@@ -41,6 +41,7 @@ batch_size = 10
 
 for epoch in range(num_epochs):
     for batch_x, batch_y in loader:
+        batch_x = batch_x.float()
         optimizer.zero_grad()
         outputs = model(batch_x)
         loss = criterion(outputs, batch_y)
