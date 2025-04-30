@@ -1,10 +1,8 @@
-from torch.utils.data import Dataset, DataLoader
 import mlp_class
 from torch.utils.data import Dataset, DataLoader, random_split
 import torch.nn as nn
 import torch.optim as optim
 import matplotlib.pyplot as plt
-import os
 import torch
 
 from dataset import PeptideDataset
@@ -33,8 +31,9 @@ optimizer = optim.Adam(model.parameters(), lr=0.0001)
 # -----------------------------
 # Training Loop
 # -----------------------------
-num_epochs = 20
+num_epochs = 75
 test_losses = []
+train_losses = []
 
 for epoch in range(num_epochs):
     model.train()
@@ -48,6 +47,8 @@ for epoch in range(num_epochs):
         optimizer.step()
         train_loss += loss.item() * batch_x.size(0)
     train_loss /= len(train_loader.dataset)
+    train_losses.append(train_loss)
+
 
     # Testing (Evaluation Phase)
     model.eval()
@@ -59,18 +60,22 @@ for epoch in range(num_epochs):
             loss = criterion(outputs, test_y)
             test_loss += loss.item() * test_x.size(0)  # accumulate the loss
 
-    test_loss /= len(test_loader.dataset)  # average test loss over the whole test set
+    test_loss /= len(test_loader.dataset)  # average test loss over the whole test set\
     test_losses.append(test_loss)
     print(f'Epoch [{epoch + 1}/{num_epochs}], Training Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}')
 
 # -----------------------------
 # Plot Accuracy
 # -----------------------------
-plt.plot(range(1, num_epochs + 1), test_losses, marker='o')
-plt.title("Test Loss over Epochs")
+plt.plot(range(1, num_epochs + 1), train_losses, marker='o', label='Train Loss')
+plt.plot(range(1, num_epochs + 1), test_losses, marker='s', label='Test Loss')
+plt.axvline(x=30, color='red', linestyle='--', label='Suggested Stop (Epoch 30)')
+plt.title("Loss over Epochs")
 plt.xlabel("Epoch")
 plt.ylabel("Loss")
+plt.legend(loc='upper right', frameon=True)
 plt.grid(True)
+plt.ylim(bottom=0)
 plt.show()
 
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
@@ -103,13 +108,17 @@ plt.show()
 per_class_accuracy = cm.diagonal() / cm.sum(axis=1)
 num_classes = cm.shape[0]
 
-plt.bar(range(num_classes), per_class_accuracy)
-plt.xlabel("Class Label")
+idx_to_class = {v: k for k, v in full_dataset.label_mapping.items()}
+class_names = [idx_to_class[i] for i in range(num_classes)]
+
+plt.bar(class_names, per_class_accuracy)
+plt.xlabel("Class Name")
 plt.ylabel("Accuracy")
 plt.title("Per-Class Accuracy")
-plt.xticks(range(num_classes))
+plt.xticks(rotation=45, ha='right')
 plt.ylim(0, 1)
 plt.grid(axis='y')
+plt.tight_layout()
 plt.show()
 
 torch.save(model.state_dict(), "trained_model.pth")

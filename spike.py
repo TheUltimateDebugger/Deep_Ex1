@@ -1,6 +1,7 @@
-import streamlit as st
 import torch
 import torch.nn.functional as F
+
+from dataset import PeptideDataset
 from mlp_class import MLPClassifier
 import pandas as pd
 
@@ -26,6 +27,9 @@ def generate_9mers(sequence):
 def predict_peptides(peptides):
     results = []
 
+    dataset = PeptideDataset("ex1 data\\ex1 data")
+    idx_to_class = {v: k for k, v in dataset.label_mapping.items()}
+
     # Load model once
     model = MLPClassifier()
     model.load_state_dict(torch.load("trained_model.pth", map_location=torch.device('cpu')))
@@ -44,7 +48,7 @@ def predict_peptides(peptides):
 
             results.append({
                 "Peptide": peptide,
-                "Predicted Class": pred_class,
+                "Predicted Class": idx_to_class[pred_class],
                 "Probability (Positive)": probs[1] if len(probs) > 1 else probs[0]
             })
         except Exception as e:
@@ -58,7 +62,7 @@ def predict_peptides(peptides):
 
     # Print top 3
     print("Top 3 Predicted Peptides:")
-    print(df.head(3))
+    print(df.head(10))
 
     return df
 
