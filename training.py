@@ -20,7 +20,7 @@ train_loader = DataLoader(train_dataset, batch_size=256, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=256, shuffle=False)
 
 # Model, loss, optimizer
-model = mlp_class.MLPBasicClassifier()
+model = mlp_class.MLPBetterClassifier()
 # Collect training labels only
 train_labels = torch.tensor([full_dataset[i][1] for i in train_dataset.indices])
 class_counts = torch.bincount(train_labels)
