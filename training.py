@@ -20,7 +20,7 @@ train_loader = DataLoader(train_dataset, batch_size=256, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=256, shuffle=False)
 
 # Model, loss, optimizer
-model = mlp_class.MLPClassifier()
+model = mlp_class.MLPBasicClassifier()
 # Collect training labels only
 train_labels = torch.tensor([full_dataset[i][1] for i in train_dataset.indices])
 class_counts = torch.bincount(train_labels)
@@ -60,7 +60,7 @@ for epoch in range(num_epochs):
             loss = criterion(outputs, test_y)
             test_loss += loss.item() * test_x.size(0)  # accumulate the loss
 
-    test_loss /= len(test_loader.dataset)  # average test loss over the whole test set\
+    test_loss /= len(test_loader.dataset)  # average test loss over the whole test set
     test_losses.append(test_loss)
     print(f'Epoch [{epoch + 1}/{num_epochs}], Training Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}')
 
@@ -81,7 +81,6 @@ plt.show()
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 import numpy as np
 
-# Step 1: Collect predictions and labels
 all_preds = []
 all_labels = []
 
@@ -97,28 +96,5 @@ with torch.no_grad():
 all_preds = np.array(all_preds)
 all_labels = np.array(all_labels)
 
-# Step 2: Confusion Matrix
-cm = confusion_matrix(all_labels, all_preds)
-disp = ConfusionMatrixDisplay(confusion_matrix=cm)
-disp.plot(cmap='Blues', values_format='d')
-plt.title("Confusion Matrix")
-plt.show()
-
-# Step 3: Per-Class Accuracy
-per_class_accuracy = cm.diagonal() / cm.sum(axis=1)
-num_classes = cm.shape[0]
-
-idx_to_class = {v: k for k, v in full_dataset.label_mapping.items()}
-class_names = [idx_to_class[i] for i in range(num_classes)]
-
-plt.bar(class_names, per_class_accuracy)
-plt.xlabel("Class Name")
-plt.ylabel("Accuracy")
-plt.title("Per-Class Accuracy")
-plt.xticks(rotation=45, ha='right')
-plt.ylim(0, 1)
-plt.grid(axis='y')
-plt.tight_layout()
-plt.show()
-
+# saves the model
 torch.save(model.state_dict(), "trained_model.pth")

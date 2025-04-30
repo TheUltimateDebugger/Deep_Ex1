@@ -4,17 +4,25 @@ from torch.utils.data import Dataset
 
 
 class PeptideDataset(Dataset):
+    """
+    The dataset of the Peptides. Reads the information from a folder
+    and organises it in a way that a network can read it
+    """
     def __init__(self, folder_path):
         super().__init__()
         self.folder_path = folder_path
         self.peptides = []
         self.labels = []
+        # the amino acids:
         self.amino_acids = "ACDEFGHIKLMNPQRSTVWY"
         self.aa_to_idx = {aa: idx for idx, aa in enumerate(self.amino_acids)}
         self.label_mapping = {}
         self._load_data()
 
     def _load_data(self):
+        """
+        Loads the data from the files and makes the labels for them
+        """
         allele_files = [f for f in os.listdir(self.folder_path) if f.endswith('.txt')]
         current_label = 0
         for filename in sorted(allele_files):
@@ -37,6 +45,10 @@ class PeptideDataset(Dataset):
         return len(self.peptides)
 
     def __getitem__(self, idx):
+        """
+        :param idx:
+        :return: the peptide with a one hot vector with the Y value (the correct allele)
+        """
         peptide = self.peptides[idx]
         label = self.labels[idx]
 

@@ -2,10 +2,10 @@ import torch
 import torch.nn.functional as F
 
 from dataset import PeptideDataset
-from mlp_class import MLPClassifier
+from mlp_class import MLPBetterClassifier
 import pandas as pd
 
-# Constantst
+# Constants
 amino_acids = "ACDEFGHIKLMNPQRSTVWY"
 aa_to_idx = {aa: idx for idx, aa in enumerate(amino_acids)}
 
@@ -31,7 +31,7 @@ def predict_peptides(peptides):
     idx_to_class = {v: k for k, v in dataset.label_mapping.items()}
 
     # Load model once
-    model = MLPClassifier()
+    model = MLPBetterClassifier()
     model.load_state_dict(torch.load("trained_model.pth", map_location=torch.device('cpu')))
     model.eval()
 
@@ -67,6 +67,9 @@ def predict_peptides(peptides):
     return df
 
 def main(spike_file_path):
+    """
+    runs the code for part e of the exersice
+    """
     with open(spike_file_path, 'r') as f:
         sequence = f.read().strip().replace('\n', '').replace(' ', '')
 
